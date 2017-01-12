@@ -15,6 +15,7 @@ DIR_SRC=src
 TARGET=watchman
 PREFIX?=/usr/local
 SHARE=$(PREFIX)/share/$(TARGET)
+INITD=/etc/init.d
 
 # Rules
 all: directories $(TARGET)
@@ -33,12 +34,14 @@ directories:
 
 install:
 	$(CP) $(DIR_BIN)/$(TARGET) $(PREFIX)/bin/$(TARGET)
+	$(CP) init.d/$(TARGET).sh $(INITD)/$(TARGET)
 	$(MD) $(SHARE)
 	$(CP) share/* $(SHARE)
 	$(CHMALL) $(SHARE)
 
 uninstall:
 	$(RM) $(PREFIX)/bin/$(TARGET)
+	$(RM) $(INITD)/$(TARGET)
 
 clean:
 	$(RM) $(DIR_BIN) $(DIR_BUILD)

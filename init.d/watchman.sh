@@ -11,35 +11,52 @@
 
 # SETTINGS
 NAME=watchman
-SCRIPT=/usr/local/bin/$NAME
+DAEMON=/usr/local/bin/$NAME
+DAEMON_OPTS=""
 PIDFILE=/var/run/$NAME.pid
-LOGFILE=/var/log/$NAME.pid
 
-start() {
-  if [ -e $PIDFILE ]; then
-    echo "$NAME is already running"
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+is_running() {
+  pid=$(cat $PIDFILE)
+  if [ -n "$(ps -A | grep $pid)" ]; then
+    return 0
+  else
     return 1
   fi
+}
+
+start() {
+  if [[ -f "$PIDFILE" ]] && is_running ; then
+      echo "$NAME is already running"
+      return 1
+  fi
+
   echo "Starting $NAME..."
-  $SCRIPT
+  $DAEMON && pgrep -f $DAEMON > $PIDFILE
   echo "$NAME started"
 }
 
 stop() {
-  if [ ! -e "$PIDFILE" ]; then
-    echo "$NAME is not running"
+  if [[ ! -f "$PIDFILE" ]] || ! is_running ; then
+    echo "$NAME is stopped"
     return 1
   fi
+
   echo "Stopping $NAME..."
-  pkill -F $PIDFILE
+  pkill -F $PIDFILE && rm -f $PIDFILE
   echo "$NAME stopped"
 }
 
 status() {
-  if [ -e $PIDFILE ]; then
+  if is_running ; then
     echo "$NAME is running"
   else
-    echo "$NAME is not running"
+    echo "$NAME is stopped"
   fi
 }
 

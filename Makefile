@@ -1,5 +1,6 @@
 # Executables
 CC=gcc
+CFLAGS=-std=gnu99
 CP=cp -r
 MD=mkdir -p
 RM=rm -rf
@@ -21,13 +22,13 @@ INITD=$(ETC)/init.d
 all: directories $(TARGET)
 
 $(TARGET): main.o watchman.o
-	$(CC) $(DIR_BUILD)/watchman.o $(DIR_BUILD)/main.o -o $(DIR_BIN)/$(TARGET)
+	$(CC) $(CFLAGS) $(DIR_BUILD)/watchman.o $(DIR_BUILD)/main.o -o $(DIR_BIN)/$(TARGET)
 
 main.o: $(DIR_SRC)/main.c
-	$(CC) -Iheaders -c $(DIR_SRC)/main.c -o $(DIR_BUILD)/main.o
+	$(CC) $(CFLAGS) -Iheaders -c $(DIR_SRC)/main.c -o $(DIR_BUILD)/main.o
 
 watchman.o: $(DIR_SRC)/watchman.c
-	$(CC) -Iheaders -c $(DIR_SRC)/watchman.c -o $(DIR_BUILD)/watchman.o
+	$(CC) $(CFLAGS) -Iheaders -c $(DIR_SRC)/watchman.c -o $(DIR_BUILD)/watchman.o
 
 directories:
 	$(MD) $(DIR_BIN) $(DIR_BUILD)

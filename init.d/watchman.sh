@@ -19,7 +19,8 @@ PIDFILE=/var/run/$NAME.pid
 [ -x "$DAEMON" ] || exit 0
 
 # Read configuration variable file if it is present
-[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+[ -r /etc/default/$NAME.conf ] && . /etc/default/$NAME.conf
+[ -r /etc/$NAME.conf ] && . /etc/$NAME.conf
 
 is_running() {
   pid=$(cat $PIDFILE)
@@ -53,10 +54,10 @@ stop() {
 }
 
 status() {
-  if is_running ; then
-    echo "$NAME is running"
-  else
+  if [[ ! -f "$PIDFILE" ]] || ! is_running ; then
     echo "$NAME is stopped"
+  else
+    echo "$NAME is running"
   fi
 }
 

@@ -16,7 +16,9 @@ DIR_SRC=src
 TARGET=watchman
 PREFIX?=/usr/local
 ETC=/etc
+DEFAULT=$(ETC)/default
 INITD=$(ETC)/init.d
+RSYSLOG=$(ETC)/rsyslog.d
 
 # Rules
 all: directories $(TARGET)
@@ -36,8 +38,9 @@ directories:
 install:
 	$(CP) $(DIR_BIN)/$(TARGET) $(PREFIX)/bin/$(TARGET)
 	$(CP) init.d/$(TARGET).sh $(INITD)/$(TARGET)
-	$(CP) default/$(TARGET).conf $(ETC)
-	$(CHMALL) $(ETC)/$(TARGET).conf
+	$(CP) config/default/$(TARGET).conf $(DEFAULT)
+	$(CP) config/rsyslog.d/90-$(TARGET).conf $(RSYSLOG)
+	# service rsyslog restart
 
 uninstall:
 	$(RM) $(PREFIX)/bin/$(TARGET)

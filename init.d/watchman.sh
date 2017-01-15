@@ -23,6 +23,9 @@ PIDFILE=/var/run/$NAME.pid
 [ -r /etc/$NAME.conf ] && . /etc/$NAME.conf
 
 is_running() {
+  [ -f "$PIDFILE" ] || return 1   # $PIDFILE exists
+  [ -s "$PIDFILE" ] || return 1   # $PIDFILE is not empty
+
   pid=$(cat $PIDFILE)
   if [ -n "$(ps -A | grep $pid)" ]; then
     return 0
@@ -32,7 +35,7 @@ is_running() {
 }
 
 start() {
-  if [[ -f "$PIDFILE" ]] && is_running ; then
+  if is_running ; then
       echo "$NAME is already running"
       return 1
   fi
@@ -43,7 +46,7 @@ start() {
 }
 
 stop() {
-  if [[ ! -f "$PIDFILE" ]] || ! is_running ; then
+  if ! is_running ; then
     echo "$NAME is stopped"
     return 1
   fi
@@ -54,10 +57,10 @@ stop() {
 }
 
 status() {
-  if [[ ! -f "$PIDFILE" ]] || ! is_running ; then
-    echo "$NAME is stopped"
-  else
+  if is_running ; then
     echo "$NAME is running"
+  else
+    echo "$NAME is stopped"
   fi
 }
 
@@ -71,7 +74,7 @@ case "$1" in
   status)
     status
     ;;
-  retart)
+  restart)
     stop
     start
     ;;

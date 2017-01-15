@@ -37,8 +37,25 @@
 *** DEFINITION FUNCTIONS
 **/
 
+/* Directory: Struct with directory info */
+typedef struct Directory {
+    char *path;     // Location path
+} Directory;
+
+/* Directories: Struct with directories info */
+typedef struct Directories {
+    int size;           // Nº directories
+    Directory *dirs;    // Directories
+} Directories;
+
+
+/**
+*** DEFINITION FUNCTIONS
+**/
+
 // General
-int demonize();
+int demonize(Directories *d);
+Directories* parseDirectories(int size, char *args[]);
 
 // Other
 void showHelp();

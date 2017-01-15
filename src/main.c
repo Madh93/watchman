@@ -8,22 +8,17 @@
 
 int main(int argc, char *argv[]) {
 
-    // DEBUG
-    printf("Debug:\n");
-    printf("%d\n", argc);
-
-    for (int i=0; i<argc; i++)
-        printf("%s | ", argv[i]);
-    printf("\n");
-
     // Parse arguments
     if (argc > 1) {
-        if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
+        if ((strcmp(argv[1], "-d") == 0) || (strcmp(argv[1], "--directories") == 0)) {
+            Directories *d = parseDirectories(argc, argv);
+            printf("%d\n", demonize(d));
+        } else if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
             showHelp();
         } else if ((strcmp(argv[1], "-v") == 0) || (strcmp(argv[1], "--version") == 0)) {
             showVersion();
         } else {
-            printf("%d\n",demonize());
+            printf("Unknown option '%s'\nTry: %s --help\n", argv[1], APP);
         }
     } else {
         printf("No arguments\n");

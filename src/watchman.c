@@ -10,7 +10,7 @@
 *** Other
 **/
 
-int demonize() {
+int demonize(Directories *d) {
 
     pid_t pid;
 
@@ -57,6 +57,26 @@ int demonize() {
     closelog();
 
     return 0;
+}
+
+Directories* parseDirectories(int size, char *args[]) {
+
+    if (size < 3) {
+        printf("No directories\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Get directories data
+    Directories *d = malloc(sizeof(Directories));
+
+    d->size = size - 2;
+    d->dirs = malloc(d->size * sizeof(Directory));
+
+    for (int i=0; i<d->size; i++) {
+        d->dirs[i].path = args[i+2];
+    }
+
+    return d;
 }
 
 

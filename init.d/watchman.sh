@@ -12,7 +12,6 @@
 # SETTINGS
 NAME=watchman
 DAEMON=/usr/local/bin/$NAME
-DAEMON_OPTS=""
 PIDFILE=/var/run/$NAME.pid
 
 # Exit if the package is not installed
@@ -41,7 +40,7 @@ start() {
   fi
 
   echo "Starting $NAME..."
-  $DAEMON && pgrep -f $DAEMON > $PIDFILE
+  $DAEMON $WATCHMAN_ARGS && pgrep -f $DAEMON > $PIDFILE
   echo "$NAME started"
 }
 

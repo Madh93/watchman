@@ -1,6 +1,6 @@
 # Watchman
 
-Simple implementation of inotify .
+Simple implementation of inotify.
 
 ### To do
 

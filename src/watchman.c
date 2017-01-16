@@ -5,10 +5,8 @@
 // LICENSE       : GNU General Public License v3
 
 #include "watchman.h"
+#include "monitor.h"
 
-/**
-*** Other
-**/
 
 int demonize(Directories *d) {
 
@@ -50,7 +48,8 @@ int demonize(Directories *d) {
     syslog(LOG_NOTICE, "Started");
 
     // Do something
-    sleep(10);
+    // sleep(10);
+    monitorize(d);
 
     // Close logs
     syslog(LOG_NOTICE, "Finished");
@@ -73,23 +72,20 @@ Directories* parseDirectories(int size, char *args[]) {
     d->dirs = malloc(d->size * sizeof(Directory));
 
     for (int i=0; i<d->size; i++) {
-        d->dirs[i].path = args[i+2];
+        d->dirs[i].name = args[i+2];
     }
 
     return d;
 }
 
 
-/**
-*** Other
-**/
-
 void showHelp() {
     printf("%s: Simple implementation of inotify\n", APP);
     printf("\nUsage: %s [options]\n", APP);
     printf("\nOptions:\n");
-    printf("  -h, --help\tShow this help\n");
-    printf("  -v, --version\tShow version\n");
+    printf("  -d, --directories   Directories to monitorize\n");
+    printf("  -h, --help          Show this help\n");
+    printf("  -v, --version       Show version\n");
 }
 
 void showVersion() {

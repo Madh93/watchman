@@ -7,10 +7,6 @@
 #ifndef WATCHMAN_H
 #define WATCHMAN_H
 
-/**
-*** INCLUDES
-**/
-
 // To demonize
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -23,23 +19,15 @@
 #include <string.h>
 
 
-/**
-*** CONSTANTS
-**/
-
 // General
 #define APP "watchman"
 #define VERSION "0.1.0"
 #define PATH "/usr/local/bin"
 
 
-/**
-*** DEFINITION FUNCTIONS
-**/
-
 /* Directory: Struct with directory info */
 typedef struct Directory {
-    char *path;     // Location path
+    char *name;     // Directory name
 } Directory;
 
 /* Directories: Struct with directories info */
@@ -48,10 +36,6 @@ typedef struct Directories {
     Directory *dirs;    // Directories
 } Directories;
 
-
-/**
-*** DEFINITION FUNCTIONS
-**/
 
 // General
 int demonize(Directories *d);

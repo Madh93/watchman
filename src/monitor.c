@@ -52,12 +52,12 @@ void addDirectory(int fd, Directory *dir) {
     int wd = inotify_add_watch(fd, dir->pathname, IN_ALL_EVENTS);
 
     if (wd < 0) {
-        syslog(LOG_ERR, "Failed to add watch for '%s'", dir->pathname);
+        syslog(LOG_ERR, "Failed to add watch '%s", dir->pathname);
         exit(EXIT_FAILURE);
     }
 
     dir->wd = wd;
-    syslog(LOG_INFO, "Added watch '%s'", dir->pathname);
+    syslog(LOG_INFO, "Added watch '%s' (wd: %d)", dir->pathname, dir->wd);
 }
 
 void removeDirectory(int fd, Directory *dir) {
@@ -67,14 +67,90 @@ void removeDirectory(int fd, Directory *dir) {
         exit(EXIT_FAILURE);
     }
 
+    syslog(LOG_INFO, "Removed watch '%s' (wd: %d)", dir->pathname, dir->wd);
     dir->wd = -1;
-    syslog(LOG_INFO, "Removed watch '%s'", dir->pathname);
 }
 
 void showEvent(struct inotify_event *event) {
 
-    if (event->mask & IN_CREATE)
-        syslog(LOG_INFO, "Created '%s'", (char *)event->name);
+    int wd = event->wd;
+    char *name = NULL;
+    char *type = NULL;
+
+    // Get filename
+    if (event->len > 0) {
+        name = event->name;
+    }
+
+    // Check filetype
+    if (event->mask & IN_ISDIR) {
+        type = "directory";
+    } else {
+        type = "file";
+    }
+
+    // Check event
+    switch (event->mask & IN_ALL_EVENTS) {
+        case IN_ACCESS: // File was accessed (read)
+            syslog(LOG_INFO, "IN_ACCESS: %s '%s' was accessed (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_ATTRIB: // File metadata changed
+            syslog(LOG_INFO, "IN_ATTRIB: %s '%s' metadata changed (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_CLOSE_WRITE: // File opened for writing was closed
+            syslog(LOG_INFO, "IN_CLOSE_WRITE: %s '%s' opened for writing was closed (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_CLOSE_NOWRITE: // File opened read-only was closed
+            syslog(LOG_INFO, "IN_CLOSE_NOWRITE: %s '%s' opened read-only was closed (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_CREATE: // File/directory created
+            syslog(LOG_INFO, "IN_CREATE: %s '%s' created (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_DELETE: // File/directory deleted
+            syslog(LOG_INFO, "IN_DELETE: %s '%s' deleted (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_DELETE_SELF: // File/directory was itself deleted
+            syslog(LOG_INFO, "IN_DELETE_SELF: %s '%s' was itself deleted (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_MODIFY: // File was modified
+            syslog(LOG_INFO, "IN_MODIFY: %s '%s' was modified (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_MOVE_SELF: // File/directory was itself moved
+            syslog(LOG_INFO, "IN_MOVE_SELF: %s '%s' was itself moved (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_MOVED_FROM: // File moved out of directory
+            syslog(LOG_INFO, "IN_MOVED_FROM: %s '%s' moved out of directory (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_MOVED_TO: // File moved into directory
+            syslog(LOG_INFO, "IN_MOVED_INTO: %s '%s' moved into directory (wd: %d)",
+                                type, name, wd);
+            break;
+
+        case IN_OPEN: // File was opened
+            syslog(LOG_INFO, "IN_OPEN: %s '%s' was opened (wd: %d)",
+                                type, name, wd);
+            break;
+    }
 }
 
 void readEvents(int fd) {
@@ -84,9 +160,9 @@ void readEvents(int fd) {
     ssize_t count = read(fd, buffer, BUF_LEN);
 
     if (count < 0) {
-        syslog(LOG_ERR, "Failed to read events");
-        // exit(EXIT_FAILURE);
-        syslog(LOG_ERR, "Failed to read events");
+        if (monitoring) {
+            syslog(LOG_ERR, "Failed to read events");
+        }
         return;
     }
 

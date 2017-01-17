@@ -59,7 +59,7 @@ stop() {
 
 status() {
   if is_running ; then
-    echo "$NAME is running"
+    echo "$NAME is running (pid: $(cat $PIDFILE))"
   else
     echo "$NAME is stopped"
   fi

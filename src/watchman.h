@@ -27,7 +27,8 @@
 
 /* Directory: Struct with directory info */
 typedef struct Directory {
-    char *name;     // Directory name
+    // int wd;
+    char *pathname;     // Directory name
 } Directory;
 
 /* Directories: Struct with directories info */

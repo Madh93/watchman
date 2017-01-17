@@ -47,9 +47,12 @@ int demonize(Directories *d) {
 
     syslog(LOG_NOTICE, "Started");
 
-    // Do something
-    // sleep(10);
+    // Do something interesting
     monitorize(d);
+
+    // Free memory
+    free(d->dirs);
+    free(d);
 
     // Close logs
     syslog(LOG_NOTICE, "Finished");
@@ -72,7 +75,7 @@ Directories* parseDirectories(int size, char *args[]) {
     d->dirs = malloc(d->size * sizeof(Directory));
 
     for (int i=0; i<d->size; i++) {
-        d->dirs[i].name = args[i+2];
+        d->dirs[i].pathname = args[i+2];
     }
 
     return d;

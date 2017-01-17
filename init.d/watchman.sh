@@ -20,6 +20,8 @@ PIDFILE=/var/run/$NAME.pid
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME.conf ] && . /etc/default/$NAME.conf
 [ -r /etc/$NAME.conf ] && . /etc/$NAME.conf
+# Overwrite input arguments
+[ "$#" -eq "1" ] || WATCHMAN_ARGS=$(cut -d " " -f2- <<< $@)
 
 is_running() {
   [ -f "$PIDFILE" ] || return 1   # $PIDFILE exists

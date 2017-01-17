@@ -27,7 +27,7 @@
 
 /* Directory: Struct with directory info */
 typedef struct Directory {
-    // int wd;
+    int wd;             // Inotify ID
     char *pathname;     // Directory name
 } Directory;
 

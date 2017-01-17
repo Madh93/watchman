@@ -7,6 +7,17 @@
 #include "monitor.h"
 
 
+void signalHandler(int signo) {
+    if (signo == SIGTERM) {
+        syslog(LOG_INFO, "Received SIGTERM");
+        monitoring = 0;
+    } else {
+        syslog(LOG_ERR, "Received unknown signal");
+        exit(EXIT_FAILURE);
+    }
+}
+
+
 int initMonitor() {
 
     int fd = inotify_init();
@@ -16,15 +27,16 @@ int initMonitor() {
         exit(EXIT_FAILURE);
     }
 
+    monitoring = 1;
     syslog(LOG_INFO, "Started monitor");
 
     return fd;
 }
 
-void closeMonitor(int fd, int *watching, int size) {
+void closeMonitor(int fd, Directories *d) {
 
-    for (int i=0; i<size; i++) {
-        removeDirectory(fd, watching[i]);
+    for (int i=0; i<d->size; i++) {
+        removeDirectory(fd, &d->dirs[i]);
     }
 
     if (close(fd) < 0) {
@@ -33,10 +45,9 @@ void closeMonitor(int fd, int *watching, int size) {
     }
 
     syslog(LOG_INFO, "Monitor closed");
-
 }
 
-int addDirectory(int fd, Directory *dir) {
+void addDirectory(int fd, Directory *dir) {
 
     int wd = inotify_add_watch(fd, dir->pathname, IN_ALL_EVENTS);
 
@@ -45,19 +56,19 @@ int addDirectory(int fd, Directory *dir) {
         exit(EXIT_FAILURE);
     }
 
+    dir->wd = wd;
     syslog(LOG_INFO, "Added watch '%s'", dir->pathname);
-
-    return wd;
 }
 
-void removeDirectory(int fd, int wd) {
+void removeDirectory(int fd, Directory *dir) {
 
-    if (inotify_rm_watch(fd, wd) < 0) {
+    if (inotify_rm_watch(fd, dir->wd) < 0) {
         syslog(LOG_ERR, "Failed to remove watch");
         exit(EXIT_FAILURE);
     }
 
-    syslog(LOG_INFO, "Removed watch '%d'", wd);
+    dir->wd = -1;
+    syslog(LOG_INFO, "Removed watch '%s'", dir->pathname);
 }
 
 void showEvent(struct inotify_event *event) {
@@ -74,7 +85,9 @@ void readEvents(int fd) {
 
     if (count < 0) {
         syslog(LOG_ERR, "Failed to read events");
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
+        syslog(LOG_ERR, "Failed to read events");
+        return;
     }
 
     // Show every read event
@@ -88,25 +101,24 @@ void readEvents(int fd) {
 
 int monitorize(Directories *d){
 
+    // Register signal SIGTERM and signal handler
+    signal(SIGTERM, signalHandler);
+
     // Initialize inotify
     int fd = initMonitor();
 
-    // List of watching directories
-    int *watching = malloc(d->size * sizeof(int));
-
     // Add directories to watch
     for (int i = 0; i < d->size; i++) {
-        watching[i] = addDirectory(fd, &d->dirs[i]);
+        addDirectory(fd, &d->dirs[i]);
     }
 
     // Read and show events
-    while (1) {
+    while (monitoring) {
         readEvents(fd);
     }
 
     // Close and free
-    closeMonitor(fd, watching, d->size);
-    free(watching);
+    closeMonitor(fd, d);
 
     return 0;
 }

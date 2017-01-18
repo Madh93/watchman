@@ -47,7 +47,7 @@ Directory* findByIndex(DirectoryList *list, int index);
 Directory* findByWD(DirectoryList *list, int wd);
 Directory* findByPathname(DirectoryList *list, char *pathname);
 
-void showList(DirectoryList *list);
+void showDirectories(DirectoryList *list);
 
 
 #endif /* DIRECTORY_H */

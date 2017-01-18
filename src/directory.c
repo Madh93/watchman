@@ -152,7 +152,7 @@ Directory* findByPathname(DirectoryList *list, char *pathname) {
     Directory *aux = list->head;
 
     while (aux) {
-        if (aux->pathname == pathname) {
+        if (strcmp(aux->pathname, pathname) == 0) {
             return aux;
         }
         aux = aux->next;
@@ -162,7 +162,7 @@ Directory* findByPathname(DirectoryList *list, char *pathname) {
 }
 
 
-void showList(DirectoryList *list) {
+void showDirectories(DirectoryList *list) {
 
     Directory *aux = list->head;
     int i=0;

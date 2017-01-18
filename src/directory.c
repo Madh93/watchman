@@ -47,6 +47,8 @@ int isEmpty(DirectoryList* list) {
 }
 
 
+// Insertions & Deletions
+
 void insertAtFront(DirectoryList *list, Directory *dir) {
 
     dir->next = list->head;
@@ -103,6 +105,9 @@ void deleteByWD(DirectoryList *list, int wd) {
     list->size--;
 }
 
+
+// Find
+
 Directory* findByIndex(DirectoryList *list, int index) {
 
     if (isEmpty(list)) {
@@ -118,4 +123,52 @@ Directory* findByIndex(DirectoryList *list, int index) {
     }
 
     return n == index ? aux : NULL;
+}
+
+Directory* findByWD(DirectoryList *list, int wd) {
+
+    if (isEmpty(list)) {
+        return NULL;
+    }
+
+    Directory *aux = list->head;
+
+    while (aux) {
+        if (aux->wd == wd) {
+            return aux;
+        }
+        aux = aux->next;
+    }
+
+    return NULL;
+}
+
+Directory* findByPathname(DirectoryList *list, char *pathname) {
+
+    if (isEmpty(list)) {
+        return NULL;
+    }
+
+    Directory *aux = list->head;
+
+    while (aux) {
+        if (aux->pathname == pathname) {
+            return aux;
+        }
+        aux = aux->next;
+    }
+
+    return NULL;
+}
+
+
+void showList(DirectoryList *list) {
+
+    Directory *aux = list->head;
+    int i=0;
+    while (aux) {
+        printf("%d: %s\n", i, aux->pathname);
+        i++;
+        aux = aux->next;
+    }
 }

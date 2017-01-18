@@ -33,14 +33,21 @@ void deleteDirectory(Directory *dir);
 // DirectoryList operations
 DirectoryList* newDirectoryList();
 void deleteDirectoryList(DirectoryList *list);
-
 int isEmpty(DirectoryList* list);
+
+// Insertions & Deletions
 void insertAtFront(DirectoryList *list, Directory *dir);
 void deleteAtFront(DirectoryList *list);
 
 void updateWD(DirectoryList *list, int index, int wd);
 void deleteByWD(DirectoryList *list, int wd);
+
+// Find
 Directory* findByIndex(DirectoryList *list, int index);
+Directory* findByWD(DirectoryList *list, int wd);
+Directory* findByPathname(DirectoryList *list, char *pathname);
+
+void showList(DirectoryList *list);
 
 
 #endif /* DIRECTORY_H */

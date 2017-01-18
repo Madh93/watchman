@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include <dirent.h>
 
 
 // General
@@ -29,6 +30,7 @@
 // General
 int demonize(DirectoryList *d);
 DirectoryList* parseDirectories(int size, char *args[]);
+void findSubdirectories(DirectoryList *d, Directory *dir);
 
 // Other
 void showHelp();

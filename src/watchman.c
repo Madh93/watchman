@@ -71,10 +71,56 @@ DirectoryList* parseDirectories(int size, char *args[]) {
     DirectoryList *d = newDirectoryList();
 
     for (int i=2; i<size; i++) {
-        insertAtFront(d, newDirectory(args[i]));
+        Directory *dir = newDirectory(args[i]);
+        insertAtFront(d, dir);
+        findSubdirectories(d, dir);
     }
 
     return d;
+}
+
+void findSubdirectories(DirectoryList *d, Directory *dir) {
+
+    // About: http://stackoverflow.com/a/30877241/2453259
+
+    struct dirent *entry;
+    DIR *dp = opendir(dir->pathname);
+
+    if (!dp) {
+        printf("Error opening directory '%s'\n",dir->pathname);
+        exit(EXIT_FAILURE);
+    }
+
+    // Read entries in directory
+    while ((entry = readdir(dp))) {
+
+        // Prepare subdirectory path
+        int len = strlen(dir->pathname);
+        char* subdir = (char*)malloc(len + NAME_MAX + 2); // Warning: Memory Leak!
+        strcpy(subdir, dir->pathname);
+
+        // Append separator
+        if(subdir[len-1] != '/') {
+          subdir[len] = '/';
+          len++;
+        }
+
+        // Check if is a directory
+        struct stat buf;
+        strcpy(&subdir[len], entry->d_name);
+        if (stat(subdir, &buf) >= 0) {
+            if (S_ISDIR(buf.st_mode) && (entry->d_name[0] != '.')) {
+                // Insertion and recursive call
+                if (!findByPathname(d, subdir)) {
+                    Directory *newdir = newDirectory(subdir);
+                    insertAtFront(d, newdir);
+                    findSubdirectories(d, newdir);
+                }
+            }
+        }
+    }
+
+    closedir(dp);
 }
 
 

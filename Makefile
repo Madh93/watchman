@@ -23,11 +23,14 @@ RSYSLOG=$(ETC)/rsyslog.d
 # Rules
 all: directories $(TARGET)
 
-$(TARGET): main.o monitor.o watchman.o
-	$(CC) $(CFLAGS) $(DIR_BUILD)/watchman.o $(DIR_BUILD)/monitor.o $(DIR_BUILD)/main.o -o $(DIR_BIN)/$(TARGET)
+$(TARGET): main.o directory.o monitor.o watchman.o
+	$(CC) $(CFLAGS) $(DIR_BUILD)/directory.o $(DIR_BUILD)/watchman.o $(DIR_BUILD)/monitor.o $(DIR_BUILD)/main.o -o $(DIR_BIN)/$(TARGET)
 
 main.o: $(DIR_SRC)/main.c
 	$(CC) $(CFLAGS) -Iheaders -c $(DIR_SRC)/main.c -o $(DIR_BUILD)/main.o
+
+directory.o: $(DIR_SRC)/directory.c
+	$(CC) $(CFLAGS) -Iheaders -c $(DIR_SRC)/directory.c -o $(DIR_BUILD)/directory.o
 
 monitor.o: $(DIR_SRC)/monitor.c
 	$(CC) $(CFLAGS) -Iheaders -c $(DIR_SRC)/monitor.c -o $(DIR_BUILD)/monitor.o

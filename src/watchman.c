@@ -8,7 +8,7 @@
 #include "monitor.h"
 
 
-int demonize(Directories *d) {
+int demonize(DirectoryList *d) {
 
     pid_t pid;
 
@@ -51,8 +51,7 @@ int demonize(Directories *d) {
     monitorize(d);
 
     // Free memory
-    free(d->dirs);
-    free(d);
+    deleteDirectoryList(d);
 
     // Close logs
     syslog(LOG_NOTICE, "Finished");
@@ -61,7 +60,7 @@ int demonize(Directories *d) {
     return 0;
 }
 
-Directories* parseDirectories(int size, char *args[]) {
+DirectoryList* parseDirectories(int size, char *args[]) {
 
     if (size < 3) {
         printf("No directories\n");
@@ -69,13 +68,10 @@ Directories* parseDirectories(int size, char *args[]) {
     }
 
     // Get directories data
-    Directories *d = malloc(sizeof(Directories));
+    DirectoryList *d = newDirectoryList();
 
-    d->size = size - 2;
-    d->dirs = malloc(d->size * sizeof(Directory));
-
-    for (int i=0; i<d->size; i++) {
-        d->dirs[i].pathname = args[i+2];
+    for (int i=2; i<size; i++) {
+        insertAtFront(d, newDirectory(args[i]));
     }
 
     return d;

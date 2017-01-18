@@ -33,10 +33,11 @@ int initMonitor() {
     return fd;
 }
 
-void closeMonitor(int fd, Directories *d) {
+void closeMonitor(int fd, DirectoryList *d) {
 
-    for (int i=0; i<d->size; i++) {
-        removeDirectory(fd, &d->dirs[i]);
+    int size = d->size;
+    for (int i=0; i<size; i++) {
+        removeDirectory(fd, findByIndex(d, i));
     }
 
     if (close(fd) < 0) {
@@ -84,9 +85,9 @@ void showEvent(struct inotify_event *event) {
 
     // Check filetype
     if (event->mask & IN_ISDIR) {
-        type = "directory";
+        type = (char*)"directory";
     } else {
-        type = "file";
+        type = (char*)"file";
     }
 
     // Check event
@@ -162,6 +163,7 @@ void readEvents(int fd) {
     if (count < 0) {
         if (monitoring) {
             syslog(LOG_ERR, "Failed to read events");
+            exit(EXIT_FAILURE);
         }
         return;
     }
@@ -175,7 +177,7 @@ void readEvents(int fd) {
 }
 
 
-int monitorize(Directories *d){
+int monitorize(DirectoryList *d){
 
     // Register signal SIGTERM and signal handler
     signal(SIGTERM, signalHandler);
@@ -184,8 +186,9 @@ int monitorize(Directories *d){
     int fd = initMonitor();
 
     // Add directories to watch
-    for (int i = 0; i < d->size; i++) {
-        addDirectory(fd, &d->dirs[i]);
+    int size = d->size;
+    for (int i=0; i<size; i++) {
+        addDirectory(fd, findByIndex(d, i));
     }
 
     // Read and show events

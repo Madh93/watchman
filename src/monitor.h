@@ -26,7 +26,7 @@ void signalHandler(int signo);
 
 // Inotify utils
 int initMonitor();
-void closeMonitor(int fd, Directories *d);
+void closeMonitor(int fd, DirectoryList *d);
 
 void addDirectory(int fd, Directory *dir);
 void removeDirectory(int fd, Directory *dir);
@@ -35,6 +35,6 @@ void showEvent(struct inotify_event *event);
 void readEvents(int fd);
 
 // Inotify big loop
-int monitorize(Directories *d);
+int monitorize(DirectoryList *d);
 
 #endif /* MONITOR_H */

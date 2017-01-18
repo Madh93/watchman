@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     // Parse arguments
     if (argc > 1) {
         if ((strcmp(argv[1], "-d") == 0) || (strcmp(argv[1], "--directories") == 0)) {
-            Directories *d = parseDirectories(argc, argv);
+            DirectoryList *d = parseDirectories(argc, argv);
             printf("%d\n", demonize(d));
         } else if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
             showHelp();

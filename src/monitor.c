@@ -52,7 +52,7 @@ void addWatch(int fd, Directory *dir) {
     int wd = inotify_add_watch(fd, dir->pathname, IN_ALL_EVENTS);
 
     if (wd < 0) {
-        syslog(LOG_ERR, "Failed to add watch '%s", dir->pathname);
+        syslog(LOG_ERR, "Failed to add watch '%s' (wd: %d)", dir->pathname, dir->wd);
         exit(EXIT_FAILURE);
     }
 
@@ -63,7 +63,7 @@ void addWatch(int fd, Directory *dir) {
 void removeWatch(int fd, DirectoryList *d, Directory *dir) {
 
     if (inotify_rm_watch(fd, dir->wd) < 0) {
-        syslog(LOG_ERR, "Failed to remove watch");
+        syslog(LOG_ERR, "Failed to remove watch '%s' (wd: %d)", dir->pathname, dir->wd);
         exit(EXIT_FAILURE);
     }
 
@@ -72,7 +72,7 @@ void removeWatch(int fd, DirectoryList *d, Directory *dir) {
     deleteByWD(d, dir->wd);
 }
 
-void showEvent(struct inotify_event *event, Directory *dir) {
+void showEvent(int fd, DirectoryList* d, struct inotify_event *event) {
 
     int wd = event->wd;
     char *path = NULL;
@@ -85,6 +85,7 @@ void showEvent(struct inotify_event *event, Directory *dir) {
     }
 
     // Get pathname
+    Directory* dir = findByWD(d, wd);
     if (dir) {
         path = (char*)dir->pathname;
     }
@@ -121,16 +122,39 @@ void showEvent(struct inotify_event *event, Directory *dir) {
         case IN_CREATE: // File/directory created
             syslog(LOG_INFO, "IN_CREATE: %s '%s' created in '%s' (wd: %d)",
                                 type, name, path, wd);
+
+            // Add to watch new directory
+            if (type == "directory") {
+                Directory* newdir = newDirectory(appendPath(path, name));
+                insertAtFront(d, newdir);
+                addWatch(fd, newdir);
+            }
             break;
 
         case IN_DELETE: // File/directory deleted
             syslog(LOG_INFO, "IN_DELETE: %s '%s' deleted in '%s' (wd: %d)",
                                 type, name, path, wd);
+
+            // Remove watch directory
+            if (type == "directory") {
+                Directory* deldir = findByPathname(d, appendPath(path, name));
+                if (deldir) {
+                    removeWatch(fd, d, deldir);
+                }
+            }
             break;
 
         case IN_DELETE_SELF: // File/directory was itself deleted
             syslog(LOG_INFO, "IN_DELETE_SELF: %s '%s' was itself deleted in '%s' (wd: %d)",
                                 type, name, path, wd);
+
+            // Remove watch directory
+            if (type == "directory") {
+                Directory* deldir = findByPathname(d, appendPath(path, name));
+                if (deldir) {
+                    removeWatch(fd, d, deldir);
+                }
+            }
             break;
 
         case IN_MODIFY: // File was modified
@@ -177,7 +201,7 @@ void readEvents(int fd, DirectoryList *d) {
     // Show every read event
     for (char *e = buffer; e < buffer+count; ) {
         event = (struct inotify_event *)e;
-        showEvent(event, findByWD(d, event->wd));
+        showEvent(fd, d, event);
         e += EVENT_SIZE + event->len;
     }
 }

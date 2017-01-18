@@ -29,8 +29,10 @@
 
 // General
 int demonize(DirectoryList *d);
+
 DirectoryList* parseDirectories(int size, char *args[]);
 void findSubdirectories(DirectoryList *d, Directory *dir);
+char* appendPath(char *path, char *name);
 
 // Other
 void showHelp();

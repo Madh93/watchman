@@ -31,7 +31,7 @@ void closeMonitor(int fd, DirectoryList *d);
 void addWatch(int fd, Directory *dir);
 void removeWatch(int fd, DirectoryList *d, Directory *dir);
 
-void showEvent(struct inotify_event *event, Directory *dir);
+void showEvent(int fd, DirectoryList *d, struct inotify_event *event);
 void readEvents(int fd, DirectoryList *d);
 
 // Inotify big loop

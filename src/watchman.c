@@ -94,20 +94,10 @@ void findSubdirectories(DirectoryList *d, Directory *dir) {
     // Read entries in directory
     while ((entry = readdir(dp))) {
 
-        // Prepare subdirectory path
-        int len = strlen(dir->pathname);
-        char* subdir = (char*)malloc(len + NAME_MAX + 2); // Warning: Memory Leak!
-        strcpy(subdir, dir->pathname);
-
-        // Append separator
-        if(subdir[len-1] != '/') {
-          subdir[len] = '/';
-          len++;
-        }
+        struct stat buf;
+        char *subdir = appendPath(dir->pathname, entry->d_name);
 
         // Check if is a directory
-        struct stat buf;
-        strcpy(&subdir[len], entry->d_name);
         if (stat(subdir, &buf) >= 0) {
             if (S_ISDIR(buf.st_mode) && (entry->d_name[0] != '.')) {
                 // Insertion and recursive call
@@ -121,6 +111,26 @@ void findSubdirectories(DirectoryList *d, Directory *dir) {
     }
 
     closedir(dp);
+}
+
+
+char* appendPath(char *path, char *name) {
+
+    // Prepare subdirectory path
+    int len = strlen(path);
+    char* dir = (char*)malloc(len + NAME_MAX + 2);
+    strcpy(dir, path);
+
+    // Append separator
+    if(dir[len-1] != '/') {
+      dir[len] = '/';
+      len++;
+    }
+
+    // Append name
+    strcpy(&dir[len], name);
+
+    return dir;
 }
 
 

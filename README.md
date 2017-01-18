@@ -9,4 +9,4 @@ Simple implementation of inotify.
 - [x] Mostrar como mínimo todos los eventos se produzcan correspondientes en la tabla colgada en el campusvirtual EventosInotify al primer bloque (de IN_ACCESS a IN_OPEN).
 - [x] **Opcional:** No volver a lanzar el demonio si ya está activo.
 - [x] **Opcional:** Monitorizar los eventos en todos los subdirectorios de los directorios especificados.
-- [ ] **Opcional:** Si se añaden o borran subdirectorios la monitorización debería actualizarse dinámicamente.
+- [x] **Opcional:** Si se añaden o borran subdirectorios la monitorización debería actualizarse dinámicamente.

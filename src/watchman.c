@@ -8,7 +8,7 @@
 #include "monitor.h"
 
 
-int demonize(DirectoryList *d) {
+int demonize(DirectoryList *d, char *host, int port) {
 
     pid_t pid;
 
@@ -48,7 +48,7 @@ int demonize(DirectoryList *d) {
     syslog(LOG_NOTICE, "Started");
 
     // Do something interesting
-    monitorize(d);
+    monitorize(d, host, port);
 
     // Free memory
     deleteDirectoryList(d);
@@ -60,17 +60,14 @@ int demonize(DirectoryList *d) {
     return 0;
 }
 
-DirectoryList* parseDirectories(int size, char *args[]) {
 
-    if (size < 3) {
-        printf("No directories\n");
-        exit(EXIT_FAILURE);
-    }
+DirectoryList* parseDirectories(int pos, int size, char *args[]) {
 
     // Get directories data
     DirectoryList *d = newDirectoryList();
 
-    for (int i=2; i<size; i++) {
+
+    for (int i=pos; i<size; i++) {
         Directory *dir = newDirectory(args[i]);
         insertAtFront(d, dir);
         findSubdirectories(d, dir);
@@ -78,6 +75,7 @@ DirectoryList* parseDirectories(int size, char *args[]) {
 
     return d;
 }
+
 
 void findSubdirectories(DirectoryList *d, Directory *dir) {
 
@@ -87,7 +85,7 @@ void findSubdirectories(DirectoryList *d, Directory *dir) {
     DIR *dp = opendir(dir->pathname);
 
     if (!dp) {
-        printf("Error opening directory '%s'\n",dir->pathname);
+        printf("Error opening directory '%s'\n", dir->pathname);
         exit(EXIT_FAILURE);
     }
 
@@ -136,13 +134,18 @@ char* appendPath(char *path, char *name) {
 
 void showHelp() {
     printf("%s: Simple implementation of inotify\n", APP);
-    printf("\nUsage: %s [options]\n", APP);
+    printf("\nUsage: %s [options] DIRECTORIES\n", APP);
     printf("\nOptions:\n");
-    printf("  -d, --directories   Directories to monitorize\n");
-    printf("  -h, --help          Show this help\n");
+    printf("  -h, --host          Host address (default: localhost)\n");
+    printf("  -p, --port          Port number (default: 12345)\n");
+    printf("  -?, --help          Show this help\n");
     printf("  -v, --version       Show version\n");
+    printf("\nExample: watchman -h localhost -p 12345 /dir1 /dir2 /dir3\n");
+    exit(0);
 }
+
 
 void showVersion() {
     printf("%s %s\n", APP, VERSION);
+    exit(0);
 }

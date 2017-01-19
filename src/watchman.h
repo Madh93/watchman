@@ -28,9 +28,9 @@
 
 
 // General
-int demonize(DirectoryList *d);
+int demonize(DirectoryList *d, char *host, int port);
 
-DirectoryList* parseDirectories(int size, char *args[]);
+DirectoryList* parseDirectories(int pos, int size, char *args[]);
 void findSubdirectories(DirectoryList *d, Directory *dir);
 char* appendPath(char *path, char *name);
 

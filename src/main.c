@@ -8,76 +8,49 @@
 
 
 int findOption(int argc, char *argv[], char *option) {
-    int i = 1;
-    while (i < argc) {
-        if ((strcmp(argv[i], option) == 0) || argv[i][1] == option[2]) {
-            i++;
-            break;
-        }
-        i++;
-    }
-    printf("%d\n",i);
-    return i < argc ? i : -1;
+    int i = 0;
+    while (++i < argc)
+        if (!strcmp(argv[i], option) || argv[i][1] == option[2])
+            return ++i;
+    return 0;
 }
 
 
-int findOptionDir(int argc, char *argv[]) {
-    int pos = 1;
-    while (pos < argc) {
-        if (argv[pos][0] == '/') {
-            break;
-        }
-        pos++;
-    }
-
-    if (pos >= argc) {
-        printf("No directories\n");
-        exit(EXIT_FAILURE);
-    }
-
-    return pos;
+int findArgumentDir(int argc, char *argv[]) {
+    int i = 0;
+    while (++i < argc)
+        if (argv[i][0] == '/')
+            return i;
+    printf("No directories\n");
+    exit(EXIT_FAILURE);
 }
 
 
 int main(int argc, char *argv[]) {
 
-    // Defaults
-    char *host;
-    int port;
-    int pos = -1;
-
-    if (argc <= 1) {
+    // Show built-in commands
+    if (argc < 2) {
         printf("No directories\n");
         exit(EXIT_FAILURE);
-    }
-
-    // Show built-in commands
-    if ((strcmp(argv[1], "-?") == 0) || (strcmp(argv[1], "--help") == 0)) {
+    } else if ((!strcmp(argv[1], "-?")) || (!strcmp(argv[1], "--help"))) {
         showHelp();
-    } else if ((strcmp(argv[1], "-v") == 0) || (strcmp(argv[1], "--version") == 0)) {
+    } else if ((!strcmp(argv[1], "-v")) || (!strcmp(argv[1], "--version"))) {
         showVersion();
     }
 
-    // Get data
+    // Get and parse input data
+    int pos;
 
     // Host
     pos = findOption(argc, argv, (char*)"--host");
-    if (pos > 0) {
-        host = argv[pos];
-    } else {
-        host = (char*)"localhost";
-    }
+    char *host = pos ? argv[pos] : (char*)"localhost";
 
     // Port
     pos = findOption(argc, argv, (char*)"--port");
-    if (pos > 0) {
-        port = atoi(argv[pos]);
-    } else {
-        port = 12345;
-    }
+    int port = pos ? atoi(argv[pos]) : 12345;
 
     // Directories
-    pos = findOptionDir(argc, argv);
+    pos = findArgumentDir(argc, argv);
     DirectoryList *d = parseDirectories(pos, argc, argv);
 
     // Start daemon

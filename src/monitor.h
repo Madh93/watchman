@@ -9,6 +9,7 @@
 
 // Inotify
 #include "watchman.h"
+#include "connection.h"
 #include <signal.h>
 #include <sys/inotify.h>
 #include <limits.h>
@@ -31,10 +32,10 @@ void closeMonitor(int fd, DirectoryList *d);
 void addWatch(int fd, Directory *dir);
 void removeWatch(int fd, DirectoryList *d, Directory *dir);
 
-void showEvent(int fd, DirectoryList *d, struct inotify_event *event);
-void readEvents(int fd, DirectoryList *d);
+void showEvent(int fd, int sockfd, DirectoryList *d, struct inotify_event *event);
+void readEvents(int fd, int sockfd, DirectoryList *d);
 
 // Inotify big loop
-int monitorize(DirectoryList *d);
+int monitorize(DirectoryList *d, char *host, int port);
 
 #endif /* MONITOR_H */

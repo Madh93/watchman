@@ -6,6 +6,7 @@
 
 #include "monitor.h"
 
+// Signal handling
 
 void signalHandler(int signo) {
     if (signo == SIGTERM) {
@@ -17,6 +18,8 @@ void signalHandler(int signo) {
     }
 }
 
+
+// Inotify utils
 
 int initMonitor() {
 
@@ -33,10 +36,11 @@ int initMonitor() {
     return fd;
 }
 
+
 void closeMonitor(int fd, DirectoryList *d) {
 
     while (d->size > 0) {
-        removeWatch(fd, d, findByIndex(d,0));
+        removeWatch(fd, d, findByIndex(d, 0));
     }
 
     if (close(fd) < 0) {
@@ -46,6 +50,7 @@ void closeMonitor(int fd, DirectoryList *d) {
 
     syslog(LOG_INFO, "Monitor closed");
 }
+
 
 void addWatch(int fd, Directory *dir) {
 
@@ -60,6 +65,7 @@ void addWatch(int fd, Directory *dir) {
     syslog(LOG_INFO, "Added watch '%s' (wd: %d)", dir->pathname, dir->wd);
 }
 
+
 void removeWatch(int fd, DirectoryList *d, Directory *dir) {
 
     if (inotify_rm_watch(fd, dir->wd) < 0) {
@@ -68,11 +74,11 @@ void removeWatch(int fd, DirectoryList *d, Directory *dir) {
     }
 
     syslog(LOG_INFO, "Removed watch '%s' (wd: %d)", dir->pathname, dir->wd);
-    // dir->wd = -1;
     deleteByWD(d, dir->wd);
 }
 
-void showEvent(int fd, DirectoryList* d, struct inotify_event *event) {
+
+void showEvent(int fd, int sockfd, DirectoryList* d, struct inotify_event *event) {
 
     int wd = event->wd;
     char *path = NULL;
@@ -184,7 +190,8 @@ void showEvent(int fd, DirectoryList* d, struct inotify_event *event) {
     }
 }
 
-void readEvents(int fd, DirectoryList *d) {
+
+void readEvents(int fd, int sockfd, DirectoryList *d) {
 
     struct inotify_event *event;
     char buffer[BUF_LEN];
@@ -201,19 +208,22 @@ void readEvents(int fd, DirectoryList *d) {
     // Show every read event
     for (char *e = buffer; e < buffer+count; ) {
         event = (struct inotify_event *)e;
-        showEvent(fd, d, event);
+        showEvent(fd, sockfd, d, event);
         e += EVENT_SIZE + event->len;
     }
 }
 
 
-int monitorize(DirectoryList *d){
+// Inotify big loop
+
+int monitorize(DirectoryList *d, char *host, int port){
 
     // Register signal SIGTERM and signal handler
     signal(SIGTERM, signalHandler);
 
-    // Initialize inotify
+    // Initialize inotify and connection
     int fd = initMonitor();
+    int sockfd = initConnection(host, port);
 
     // Add directories to watch
     int size = d->size;
@@ -223,10 +233,11 @@ int monitorize(DirectoryList *d){
 
     // Read and show events
     while (monitoring) {
-        readEvents(fd, d);
+        readEvents(fd, sockfd, d);
     }
 
     // Close and free
+    closeConnection(sockfd);
     closeMonitor(fd, d);
 
     return 0;

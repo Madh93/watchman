@@ -66,7 +66,6 @@ DirectoryList* parseDirectories(int pos, int size, char *args[]) {
     // Get directories data
     DirectoryList *d = newDirectoryList();
 
-
     for (int i=pos; i<size; i++) {
         Directory *dir = newDirectory(args[i]);
         insertAtFront(d, dir);

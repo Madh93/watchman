@@ -41,7 +41,7 @@ int initConnection(char *host, int port) {
     // Start connection
     if (connect(fd, (struct sockaddr*)&info, sizeof(info)) < 0) {
         syslog(LOG_ERR, "Failed to connect to server '%s:%d'", host, port);
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     syslog(LOG_INFO, "Started connection");
@@ -54,6 +54,10 @@ int initConnection(char *host, int port) {
 
 
 void closeConnection(int fd) {
+
+    if (fd < 0) {
+        return;
+    }
 
     if (close(fd) < 0) {
         syslog(LOG_ERR, "Failed to close connection");
@@ -82,6 +86,10 @@ void listenServer(int fd) {
 
 
 void sendMessage(int fd, char *message) {
+
+    if (fd < 0) {
+        return;
+    }
 
     if (write(fd, message, strlen(message)) < 0) {
         syslog(LOG_ERR, "Failed to send message to server");

@@ -236,7 +236,6 @@ int monitorize(DirectoryList *d, char *host, int port){
     // Read and show events
     while (monitoring) {
         readEvents(fd, sockfd, d);
-        // listenServer(fd);
     }
 
     // Close and free

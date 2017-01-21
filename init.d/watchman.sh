@@ -42,7 +42,7 @@ start() {
   fi
 
   echo "Starting $NAME..."
-  $DAEMON $WATCHMAN_ARGS && pgrep -f $DAEMON > $PIDFILE
+  $DAEMON $WATCHMAN_ARGS && pgrep -f $DAEMON | tail -1 > $PIDFILE
   echo "$NAME started"
 }
 

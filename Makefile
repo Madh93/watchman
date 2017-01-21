@@ -49,7 +49,7 @@ install:
 	$(CP) init.d/$(TARGET).sh $(INITD)/$(TARGET)
 	$(CP) config/default/$(TARGET).conf $(DEFAULT)
 	$(CP) config/rsyslog.d/90-$(TARGET).conf $(RSYSLOG)
-	# service rsyslog restart
+	service rsyslog restart
 
 uninstall:
 	$(RM) $(PREFIX)/bin/$(TARGET)

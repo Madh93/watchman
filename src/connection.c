@@ -44,8 +44,10 @@ int initConnection(char *host, int port) {
         exit(EXIT_FAILURE);
     }
 
-    sendMessage(fd, (char*)"Hello world from Watchman client!");
     syslog(LOG_INFO, "Started connection");
+
+    sendMessage(fd, (char*)"Hello world from Watchman client!");
+    listenServer(fd);
 
     return fd;
 }
@@ -59,6 +61,23 @@ void closeConnection(int fd) {
     }
 
     syslog(LOG_INFO, "Connection closed");
+}
+
+
+void listenServer(int fd) {
+
+    char buffer[256];
+    memset(buffer, 0, sizeof(buffer));
+
+    ssize_t count = read(fd, buffer, sizeof(buffer));
+
+    if (count < 1) {
+        syslog(LOG_ERR, "Failed to read message from server");
+    } else if (count == 0) {
+        syslog(LOG_INFO, "Server has disconnected");
+    } else {
+        syslog(LOG_INFO, "Server says: %s", buffer);
+    }
 }
 
 

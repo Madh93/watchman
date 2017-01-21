@@ -103,6 +103,8 @@ void showEvent(int fd, int sockfd, DirectoryList* d, struct inotify_event *event
         type = (char*)"file";
     }
 
+    sendMessage(sockfd, (char*)"New event registered!");
+
     // Check event
     switch (event->mask & IN_ALL_EVENTS) {
         case IN_ACCESS: // File was accessed (read)
@@ -234,6 +236,7 @@ int monitorize(DirectoryList *d, char *host, int port){
     // Read and show events
     while (monitoring) {
         readEvents(fd, sockfd, d);
+        // listenServer(fd);
     }
 
     // Close and free

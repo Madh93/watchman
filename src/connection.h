@@ -23,6 +23,7 @@
 int initConnection(char *host, int port);
 void closeConnection(int fd);
 
+void listenServer(int fd);
 void sendMessage(int fd, char *message);
 
 #endif /* CONNECTION_H */

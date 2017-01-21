@@ -45,7 +45,7 @@ int demonize(DirectoryList *d, char *host, int port) {
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
-    syslog(LOG_NOTICE, "Started");
+    syslog(LOG_NOTICE, "Started %s", APP);
 
     // Do something interesting
     monitorize(d, host, port);
@@ -54,7 +54,7 @@ int demonize(DirectoryList *d, char *host, int port) {
     deleteDirectoryList(d);
 
     // Close logs
-    syslog(LOG_NOTICE, "Finished");
+    syslog(LOG_NOTICE, "Finished %s", APP);
     closelog();
 
     return 0;

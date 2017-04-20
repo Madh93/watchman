@@ -10,7 +10,8 @@
 int findOption(int argc, char *argv[], char *option) {
     int i = 0;
     while (++i < argc)
-        if (!strcmp(argv[i], option) || argv[i][1] == option[2])
+        if (!strcmp(argv[i], option) ||
+            (argv[i][0] == '-') && (argv[i][1] == option[2]))
             return ++i;
     return 0;
 }
